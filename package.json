@@ -1,0 +1,19 @@
+{
+  "name": "year-progress-app",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^0.1.71",
+    "@types/luxon": "^3.6.2",
+    "discord.js": "^14.19.3",
+    "luxon": "^3.6.1",
+    "pocketbase": "^0.26.1"
+  }
+}
