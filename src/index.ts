@@ -14,7 +14,7 @@ client.once("ready", async () => {
     const intervalMs = testingRn ? 10000 : 12 * 60 * 60 * 1000; // 12 hours
 
     async function run() {
-        for (const config of await getAllItems()) {
+        for (const config of getAllItems()) {
             const { channelId } = config;
 
             try {
@@ -42,11 +42,11 @@ client.once("ready", async () => {
 
     const delay = nextTrigger.diff(now).toMillis();
 
-    console.log(
-        "delay until next run:",
-        (delay / (1000 * 60 * 60)).toFixed(2),
-        "hours"
-    );
+    // console.log(
+    //     "delay until next run:",
+    //     (delay / (1000 * 60 * 60)).toFixed(2),
+    //     "hours"
+    // );
 
     await run();
 
