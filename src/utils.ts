@@ -24,9 +24,9 @@ export async function registerCommands() {
     );
 
     await rest.put(
-        Routes.applicationGuildCommands(
-            process.env.DISCORD_CLIENT_ID!,
-            process.env.DISCORD_GUILD_ID!
+        Routes.applicationCommands(
+            process.env.DISCORD_CLIENT_ID!
+            // process.env.DISCORD_GUILD_ID!
         ),
         { body: commandsArray }
     );

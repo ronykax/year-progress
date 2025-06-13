@@ -40,14 +40,15 @@ client.once("ready", async () => {
 
     const delay = nextTrigger.diff(now).toMillis();
 
-    if (testing)
+    if (testing) {
         console.log(
             "delay until next run:",
             (delay / (1000 * 60 * 60)).toFixed(2),
             "hours"
         );
 
-    await run();
+        await run();
+    }
 
     setTimeout(
         () => {
