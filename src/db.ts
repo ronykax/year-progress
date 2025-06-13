@@ -1,3 +1,5 @@
+// make sure a `db.json` file exists in the main directory
+
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 
@@ -41,4 +43,8 @@ export function setChannelId(
     }
 
     writeDB(db);
+}
+
+export function getAllItems() {
+    return readDB();
 }

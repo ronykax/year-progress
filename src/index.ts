@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import { commandGroup } from "./commands";
 import { makeMsg, registerCommands, updateSettings } from "./utils";
 import { DateTime } from "luxon";
+import { getAllItems } from "./db";
 
 const client = new Client({ intents: [] });
 
@@ -9,14 +10,11 @@ client.once("ready", async () => {
     console.log("app is online!");
     await registerCommands();
 
-    const testingRn = true;
-    const intervalMs = testingRn ? 5000 : 12 * 60 * 60 * 1000; // 12 hours
+    const testingRn = false;
+    const intervalMs = testingRn ? 10000 : 12 * 60 * 60 * 1000; // 12 hours
 
     async function run() {
-        delete require.cache[require.resolve("../db.json")];
-        const db = require("../db.json");
-
-        for (const config of db) {
+        for (const config of await getAllItems()) {
             const { channelId } = config;
 
             try {
@@ -29,9 +27,7 @@ client.once("ready", async () => {
                     embeds: [embed],
                     files: [attachment],
                 });
-            } catch (err) {
-                console.error(`couldn't send to channel ${channelId}:`);
-            }
+            } catch {}
         }
     }
 
@@ -54,10 +50,13 @@ client.once("ready", async () => {
 
     await run();
 
-    setTimeout(() => {
-        run();
-        setInterval(run, intervalMs);
-    }, delay); // set to `delay` in prod
+    setTimeout(
+        () => {
+            run();
+            setInterval(run, intervalMs);
+        },
+        testingRn ? 0 : delay
+    );
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -65,7 +64,7 @@ client.on("interactionCreate", async (interaction) => {
         const command = commandGroup.get(interaction.commandName);
 
         if (!command) return;
-        command.run(interaction);
+        await command.run(interaction);
     } else if (interaction.isChannelSelectMenu()) {
         await updateSettings(interaction);
     }
