@@ -5,6 +5,7 @@ import {
     ChatInputCommandInteraction,
     Collection,
     ContainerBuilder,
+    PermissionFlagsBits,
     SeparatorBuilder,
     SeparatorSpacingSize,
     SlashCommandBuilder,
@@ -69,7 +70,8 @@ export const commands: Command[] = [
                     .setName("channel")
                     .setDescription("Pick a channel")
                     .setRequired(true)
-            ),
+            )
+            .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
         async run(interaction) {
             const channelId = interaction.options.getChannel(
                 "channel",

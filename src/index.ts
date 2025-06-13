@@ -1,61 +1,67 @@
+import "dotenv/config";
 import { Client } from "discord.js";
 import { commandGroup } from "./commands";
-import { makeMsg, registerCommands, updateSettings } from "./utils";
-import { DateTime } from "luxon";
 import { getAllItems } from "./db";
+import {
+    getDelay,
+    getYearProgress,
+    makeMsg,
+    registerCommands,
+    updateSettings,
+} from "./utils";
 
 const client = new Client({ intents: [] });
-const testing = false; // SET TO FALSE IN PROD
+const testing = process.env.TESTING === "yes" ? true : false;
+
+let lastProgress = -1; // invalid progress
 
 client.once("ready", async () => {
     await registerCommands();
-    const intervalMs = testing ? 10000 : 12 * 60 * 60 * 1000; // 12 hours
+    console.log(testing ? "testing" : "not testing");
 
     async function run() {
         for (const config of getAllItems()) {
             const { channelId } = config;
 
-            try {
-                const channel = await client.channels.fetch(channelId);
-                if (!channel || !channel.isSendable()) continue;
+            const { progress: yearProgress, start } = getYearProgress();
+            // lastProgress = progress;
 
-                const { embed, attachment } = await makeMsg();
+            if (yearProgress > lastProgress) {
+                try {
+                    // only sending if progress was updated
+                    const channel = await client.channels.fetch(channelId);
+                    if (!channel || !channel.isSendable()) continue;
 
-                await channel.send({
-                    embeds: [embed],
-                    files: [attachment],
-                });
-            } catch {}
+                    const { container, yearProgressAttachment } = await makeMsg(
+                        yearProgress,
+                        // 50, // month progress
+                        start
+                    );
+
+                    await channel.send({
+                        components: [container],
+                        files: [yearProgressAttachment],
+                        flags: ["IsComponentsV2"],
+                    });
+                } catch (error) {
+                    if (testing)
+                        console.error(
+                            `!!! couldn't send to channel ${channelId}: `,
+                            error
+                        );
+                }
+            }
         }
     }
 
-    const now = DateTime.utc();
-    const nextTriggerHour = now.hour < 12 ? 12 : 24;
-    const nextTrigger = now.set({
-        hour: nextTriggerHour,
-        minute: 0,
-        second: 0,
-        millisecond: 0,
-    });
-
-    const delay = nextTrigger.diff(now).toMillis();
-
-    if (testing) {
-        console.log(
-            "delay until next run:",
-            (delay / (1000 * 60 * 60)).toFixed(2),
-            "hours"
-        );
-
-        await run();
-    }
+    const interval = testing ? 30000 : 3 * 60 * 60 * 1000; // 30 seconds or 3 hours
 
     setTimeout(
         () => {
             run();
-            setInterval(run, intervalMs);
+            setInterval(run, interval);
         },
-        testing ? 0 : delay
+        testing ? 0 : getDelay()
     );
 
     console.log("app is online!");
