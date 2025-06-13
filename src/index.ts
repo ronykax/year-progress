@@ -5,13 +5,11 @@ import { DateTime } from "luxon";
 import { getAllItems } from "./db";
 
 const client = new Client({ intents: [] });
+const testing = process.env.NODE_ENV === "production" ? false : true;
 
 client.once("ready", async () => {
-    console.log("app is online!");
     await registerCommands();
-
-    const testingRn = false;
-    const intervalMs = testingRn ? 10000 : 12 * 60 * 60 * 1000; // 12 hours
+    const intervalMs = testing ? 10000 : 12 * 60 * 60 * 1000; // 12 hours
 
     async function run() {
         for (const config of getAllItems()) {
@@ -42,11 +40,12 @@ client.once("ready", async () => {
 
     const delay = nextTrigger.diff(now).toMillis();
 
-    // console.log(
-    //     "delay until next run:",
-    //     (delay / (1000 * 60 * 60)).toFixed(2),
-    //     "hours"
-    // );
+    if (testing)
+        console.log(
+            "delay until next run:",
+            (delay / (1000 * 60 * 60)).toFixed(2),
+            "hours"
+        );
 
     await run();
 
@@ -55,8 +54,10 @@ client.once("ready", async () => {
             run();
             setInterval(run, intervalMs);
         },
-        testingRn ? 0 : delay
+        testing ? 0 : delay
     );
+
+    console.log("app is online!");
 });
 
 client.on("interactionCreate", async (interaction) => {
