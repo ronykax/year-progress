@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { getAllItems } from "./db";
 
 const client = new Client({ intents: [] });
-const testing = process.env.ENV === "production" ? false : true;
+const testing = false; // SET TO FALSE IN PROD
 
 client.once("ready", async () => {
     await registerCommands();
