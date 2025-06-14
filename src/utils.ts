@@ -1,3 +1,4 @@
+import "dotenv/config";
 import {
     AttachmentBuilder,
     ChannelSelectMenuInteraction,
@@ -25,72 +26,128 @@ export async function registerCommands() {
     }
 
     const rest = new REST({ version: "10" }).setToken(
-        process.env.DISCORD_CLIENT_TOKEN!
+        getEnv("DISCORD_CLIENT_TOKEN")
     );
 
     await rest.put(
         Routes.applicationCommands(
-            process.env.DISCORD_CLIENT_ID!
-            // process.env.DISCORD_GUILD_ID!
+            getEnv("DISCORD_CLIENT_ID")
+            // getEnv("DISCORD_GUILD_ID")
         ),
         { body: commandsArray }
     );
 }
 
-async function drawYearProgressBar(progress: number) {
-    const canvas = Canvas.createCanvas(320, 36);
-    const ctx = canvas.getContext("2d");
+// async function drawGrid(progress: number) {
+//     const green = "#35ed7e";
+//     const gray = "#1f1f1f";
+//     const black = "rgba(0,0,0,0.5)";
 
-    ctx.fillStyle = "rgb(224, 227, 255)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+//     const gridSize = 10;
+//     const cellSize = 20;
+//     const gap = 2;
 
-    ctx.fillStyle = "rgb(88, 101, 242)";
-    ctx.fillRect(0, 0, (progress / 100) * canvas.width, canvas.height);
-
-    return await canvas.encode("png");
-}
-
-// async function drawMonthProgressBar(progress: number) {
-//     const canvas = Canvas.createCanvas(72, 72);
+//     const canvasSize = cellSize * gridSize + gap * gridSize - gap;
+//     const canvas = Canvas.createCanvas(canvasSize, canvasSize);
 //     const ctx = canvas.getContext("2d");
 
-//     const centerX = ctx.canvas.width / 2;
-//     const centerY = ctx.canvas.height / 2;
-//     const radius = Math.min(centerX, centerY) - 6; // padding
-//     const startAngle = -Math.PI / 2;
-//     const endAngle = startAngle + 2 * Math.PI * (progress / 100);
+//     ctx.fillStyle = black;
+//     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-//     // Background circle
-//     ctx.strokeStyle = "rgb(224, 227, 255)";
-//     ctx.lineWidth = 10;
-//     ctx.beginPath();
-//     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-//     ctx.stroke();
+//     const full = Math.floor(progress);
+//     const partial = progress - full;
 
-//     // Progress arc
-//     ctx.strokeStyle = "rgb(88, 101, 242)";
-//     ctx.beginPath();
-//     ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-//     ctx.stroke();
+//     for (let row = 0; row < gridSize; row++) {
+//         for (let col = 0; col < gridSize; col++) {
+//             const i = row * gridSize + col;
+//             const x = col * (cellSize + gap);
+//             const y = row * (cellSize + gap);
+
+//             if (i < full) {
+//                 ctx.fillStyle = green;
+//                 ctx.fillRect(x, y, cellSize, cellSize);
+//             } else if (i === full && partial > 0) {
+//                 const greenWidth = cellSize * partial;
+
+//                 ctx.fillStyle = green;
+//                 ctx.fillRect(x, y, greenWidth, cellSize);
+
+//                 ctx.fillStyle = gray;
+//                 ctx.fillRect(
+//                     x + greenWidth,
+//                     y,
+//                     cellSize - greenWidth,
+//                     cellSize
+//                 );
+//             } else {
+//                 ctx.fillStyle = gray;
+//                 ctx.fillRect(x, y, cellSize, cellSize);
+//             }
+//         }
+//     }
 
 //     return await canvas.encode("png");
 // }
 
-export async function makeMsg(
-    yearProgress: number,
-    // monthProgress: number,
-    start: DateTime
-) {
-    const yearProgressBuffer = await drawYearProgressBar(yearProgress);
-    // const monthProgressBuffer = await drawMonthProgressBar(monthProgress);
+async function drawGrid(progress: number) {
+    const green = "#35ed7e";
+    const gray = "#1f1f1f";
+    const black = "rgba(0,0,0,0.5)";
 
-    const yearProgressAttachment = new AttachmentBuilder(yearProgressBuffer, {
+    const columns = 20;
+    const rows = 5;
+    const cellSize = 20;
+    const gap = 2;
+
+    const canvasWidth = columns * cellSize + gap * columns - gap;
+    const canvasHeight = rows * cellSize + gap * rows - gap;
+    const canvas = Canvas.createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = black;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const full = Math.floor(progress);
+    const partial = progress - full;
+
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < columns; col++) {
+            const i = row * columns + col;
+            const x = col * (cellSize + gap);
+            const y = row * (cellSize + gap);
+
+            if (i < full) {
+                ctx.fillStyle = green;
+                ctx.fillRect(x, y, cellSize, cellSize);
+            } else if (i === full && partial > 0) {
+                const greenWidth = cellSize * partial;
+
+                ctx.fillStyle = green;
+                ctx.fillRect(x, y, greenWidth, cellSize);
+
+                ctx.fillStyle = gray;
+                ctx.fillRect(
+                    x + greenWidth,
+                    y,
+                    cellSize - greenWidth,
+                    cellSize
+                );
+            } else {
+                ctx.fillStyle = gray;
+                ctx.fillRect(x, y, cellSize, cellSize);
+            }
+        }
+    }
+
+    return await canvas.encode("png");
+}
+
+export async function makeMsg(progress: Progress) {
+    const buffer = await drawGrid(progress.year);
+
+    const attachment = new AttachmentBuilder(buffer, {
         name: "year-progress.png",
     });
-
-    // const monthProgressAttachment = new AttachmentBuilder(monthProgressBuffer, {
-    //     name: "month-progress.png",
-    // });
 
     const smallSeprator = new SeparatorBuilder()
         .setSpacing(SeparatorSpacingSize.Small)
@@ -99,27 +156,26 @@ export async function makeMsg(
     const container = new ContainerBuilder()
         .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
-                `**${start.year} is ${yearProgress}% complete**`
+                `**${progress.currentYear} is ${progress.year}% complete**`
             )
         )
         .addSeparatorComponents(smallSeprator)
         .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
-                `- 133 / 365 days left\n- Week 24 / 52\n- June (6 / 12)`
+                `- ${progress.day.current} / ${progress.day.total} days left\n- Week ${progress.week.current} / ${progress.week.total}\n- June (${progress.month} / 12)\n_ _`
             )
         )
-        .addSeparatorComponents(smallSeprator)
+        // .addSeparatorComponents(smallSeprator)
         .addMediaGalleryComponents(
             new MediaGalleryBuilder().addItems(
                 new MediaGalleryItemBuilder().setURL(
-                    `attachment://${yearProgressAttachment.name}`
+                    `attachment://${attachment.name}`
                 )
             )
         );
 
     return {
-        yearProgressAttachment,
-        // monthProgressAttachment,
+        attachment,
         container,
     };
 }
@@ -136,18 +192,47 @@ export async function updateSettings(
     });
 }
 
-export function getYearProgress() {
-    const now = DateTime.utc();
-    const start = DateTime.utc(now.year, 1, 1);
-    const end = DateTime.utc(now.year + 1, 1, 1);
+interface Progress {
+    year: number;
+    day: { current: number; total: number };
+    week: { current: number; total: number };
+    month: number;
+    currentYear: number;
+}
 
-    const progress = Math.trunc(
-        (now.diff(start).milliseconds / end.diff(start).milliseconds) * 100
+export function getProgress(): Progress {
+    const now = DateTime.utc();
+    const startOfYear = DateTime.utc(now.year, 1, 1);
+    const endOfYear = DateTime.utc(now.year + 1, 1, 1);
+
+    const yearProgress = Number(
+        (
+            (now.diff(startOfYear).milliseconds /
+                endOfYear.diff(startOfYear).milliseconds) *
+            100
+        ).toFixed(2)
     );
 
+    const dayOfYear = now.ordinal;
+    const totalDays = endOfYear.diff(startOfYear, "days").days;
+
+    const currentWeek = now.weekNumber;
+    const totalWeeks = DateTime.utc(now.year, 12, 31).weekNumber;
+
+    const currentMonth = now.month;
+
     return {
-        progress,
-        start,
+        year: yearProgress,
+        day: {
+            current: dayOfYear,
+            total: totalDays,
+        },
+        week: {
+            current: currentWeek,
+            total: totalWeeks,
+        },
+        month: currentMonth,
+        currentYear: startOfYear.year,
     };
 }
 
@@ -162,4 +247,11 @@ export function getDelay() {
     });
 
     return nextTrigger.diff(now).toMillis();
+}
+
+export function getEnv(name: string) {
+    const result = process.env[name];
+    if (!result) throw new Error(`invalid environment variable: ${name}`);
+
+    return result;
 }
