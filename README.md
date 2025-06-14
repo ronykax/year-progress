@@ -1,15 +1,5 @@
-# year-progress-app
+# Year Progress
+A Discord app that shows how much of the current year has passed, based on UTC time.
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.9. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+- Invite link: https://discord.com/oauth2/authorize?client_id=1058434901080277134
+- Support server: https://discord.gg/jvWWH8nZxp
