@@ -22,7 +22,6 @@ client.once("ready", async () => {
             const progress = getProgress();
 
             try {
-                // only sending if progress was updated
                 const channel = await client.channels.fetch(channelId);
                 if (!channel || !channel.isSendable()) continue;
 

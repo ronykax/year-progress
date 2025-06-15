@@ -7,6 +7,7 @@ import type { Command } from "../types";
 import { setChannelId } from "../utils/db";
 import getProgress from "../utils/get-progress";
 import createMsg from "../utils/create-msg";
+import testing from "../utils/testing";
 
 const command: Command = {
     data: new SlashCommandBuilder()
@@ -47,6 +48,8 @@ const command: Command = {
                 flags: ["Ephemeral"],
             });
         } catch (error) {
+            if (testing) console.error(error);
+
             await interaction.reply({
                 content: `Something went wrong! Are you sure I have permission to send messages in <#${channelId}>?\n-# If you believe this is a mistake, please report it in our [support server](<https://discord.gg/jvWWH8nZxp>).`,
                 flags: ["Ephemeral"],
