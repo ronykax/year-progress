@@ -18,7 +18,7 @@ const command: Command = {
         const container = new ContainerBuilder()
             .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                    "Progress bar for the current year in UTC.\nUse `/subscribe [channel]` to start getting updates!"
+                    "Dividing the year into hundred pieces.\nUse `/subscribe [channel]` to start getting updates!"
                 )
             )
             .addSeparatorComponents(
