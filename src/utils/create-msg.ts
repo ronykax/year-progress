@@ -17,9 +17,7 @@ export default async function createMsg(progress: Progress) {
         name: "year-progress.png",
     });
 
-    const smallSeprator = new SeparatorBuilder()
-        .setSpacing(SeparatorSpacingSize.Small)
-        .setDivider(false);
+    const separator = new SeparatorBuilder().setDivider(false);
 
     const container = new ContainerBuilder()
         .addTextDisplayComponents(
@@ -27,13 +25,14 @@ export default async function createMsg(progress: Progress) {
                 `**${progress.currentYear} is ${progress.year}% complete**`
             )
         )
-        .addSeparatorComponents(smallSeprator)
         .addTextDisplayComponents(
             new TextDisplayBuilder().setContent(
-                `- ${progress.day.current} / ${progress.day.total} days left\n- Week ${progress.week.current} / ${progress.week.total}\n- June (${progress.month} / 12)\n_ _`
+                `- ${progress.day.current} / ${progress.day.total} days left\n- Week ${progress.week.current} / ${progress.week.total}\n- June (${progress.month} / 12)`
             )
         )
-        // .addSeparatorComponents(smallSeprator)
+        .addSeparatorComponents(
+            separator.setSpacing(SeparatorSpacingSize.Small)
+        )
         .addMediaGalleryComponents(
             new MediaGalleryBuilder().addItems(
                 new MediaGalleryItemBuilder().setURL(

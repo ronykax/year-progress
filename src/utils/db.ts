@@ -44,6 +44,13 @@ export function setChannelId(guildId: string, channelId: string) {
     writeDB(db);
 }
 
+export function deleteEntry(guildId: string) {
+    const db = readDB();
+    const updatedDB = db.filter((entry) => entry.guildId !== guildId);
+    
+    writeDB(updatedDB);
+}
+
 export function getAllItems() {
     return readDB();
 }

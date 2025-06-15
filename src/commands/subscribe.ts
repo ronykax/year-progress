@@ -12,7 +12,7 @@ import testing from "../utils/testing";
 const command: Command = {
     data: new SlashCommandBuilder()
         .setName("subscribe")
-        .setDescription("Setup Year Progress in your server!")
+        .setDescription("Subscribe to year progress updates")
         .addChannelOption((option) =>
             option
                 .setName("channel")
@@ -44,7 +44,7 @@ const command: Command = {
             setChannelId(`${interaction.guildId}`, channelId);
 
             await interaction.reply({
-                content: `Now using <#${channelId}> for year progress updates!`,
+                content: `I will now use <#${channelId}> to post year progress updates!`,
                 flags: ["Ephemeral"],
             });
         } catch (error) {
