@@ -1,9 +1,14 @@
-// make sure a `db.json` file exists in the main directory
-
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
+import testing from "./testing";
 
-const DB_PATH = path.join(__dirname, "..", "db.json");
+const DB_PATH = path.join(
+    __dirname,
+    "..",
+    "..",
+    "db",
+    testing ? "test.json" : "main.json"
+);
 
 interface GuildSettings {
     guildId: string;
@@ -16,7 +21,7 @@ function readDB(): GuildSettings[] {
 }
 
 function writeDB(data: GuildSettings[]) {
-    writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+    writeFileSync(DB_PATH, JSON.stringify(data, null, 4));
 }
 
 // export function getChannelId(guildId: string | null): string | null {
@@ -26,13 +31,7 @@ function writeDB(data: GuildSettings[]) {
 //     return record ? record.channelId : null;
 // }
 
-export function setChannelId(
-    guildId: string | null,
-    channelId: string | undefined
-) {
-    if (!guildId) return new Error("provide a guild ID!");
-    if (!channelId) return new Error("provide a channel ID!");
-
+export function setChannelId(guildId: string, channelId: string) {
     const db = readDB();
     const existing = db.find((entry) => entry.guildId === guildId);
 
