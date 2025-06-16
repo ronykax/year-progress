@@ -25,7 +25,7 @@ const command: Command = {
                         `Use ${inlineCode(
                             "/subscribe [channel]"
                         )} to start getting updates!\n\n` +
-                        `**Ping:** ${latency}ms`
+                        `-# *~ ${latency}ms*`
                 )
             )
             .addSeparatorComponents(
