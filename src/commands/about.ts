@@ -24,8 +24,7 @@ const command: Command = {
                     `Dividing the year into hundred pieces.\n` +
                         `Use ${inlineCode(
                             "/subscribe [channel]"
-                        )} to start getting updates!\n\n` +
-                        `-# *~ ${latency}ms*`
+                        )} to start getting updates!`
                 )
             )
             .addSeparatorComponents(
@@ -48,6 +47,14 @@ const command: Command = {
                         .setURL("https://discord.gg/jvWWH8nZxp")
                         .setEmoji("🐞")
                 )
+            )
+            .addSeparatorComponents(
+                new SeparatorBuilder()
+                    .setDivider(false)
+                    .setSpacing(SeparatorSpacingSize.Small)
+            )
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`-# *~ ${latency}ms*`)
             );
 
         await interaction.reply({
