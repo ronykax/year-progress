@@ -3,6 +3,7 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ContainerBuilder,
+    inlineCode,
     SeparatorBuilder,
     SeparatorSpacingSize,
     SlashCommandBuilder,
@@ -15,10 +16,17 @@ const command: Command = {
         .setName("about")
         .setDescription("About Year Progress"),
     async run(interaction) {
+        const latency = Date.now() - interaction.createdTimestamp;
+
         const container = new ContainerBuilder()
             .addTextDisplayComponents(
                 new TextDisplayBuilder().setContent(
-                    "Dividing the year into hundred pieces.\nUse `/subscribe [channel]` to start getting updates!"
+                    `Dividing the year into hundred pieces.\n` +
+                        `Use ${inlineCode(
+                            "/subscribe [channel]"
+                        )} to start getting updates!\n\n` +
+                        `WS Ping: ${interaction.client.ws.ping}\n` +
+                        `API Latency: ${latency}`
                 )
             )
             .addSeparatorComponents(
