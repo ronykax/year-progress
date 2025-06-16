@@ -25,8 +25,7 @@ const command: Command = {
                         `Use ${inlineCode(
                             "/subscribe [channel]"
                         )} to start getting updates!\n\n` +
-                        `WS Ping: ${interaction.client.ws.ping}\n` +
-                        `API Latency: ${latency}`
+                        `**Ping:** ${latency}ms`
                 )
             )
             .addSeparatorComponents(
